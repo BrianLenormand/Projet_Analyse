@@ -1,27 +1,33 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-#import graphlab
-#train_data = graphlab.SFrame(ratings_base)
-#test_data = graphlab.SFrame(ratings_test)
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.decomposition import NMF
+import scipy.sparse as sparse
+from sklearn.cluster import KMeans
+import collections
+import time
 
-# pass in column names for each CSV and read them using pandas. 
-# Column names available in the readme file
-
-#Reading users file:
-"""u_cols = ['user_id', 'age', 'sex', 'occupation', 'zip_code']
-users = pd.read_csv('tags.csv', sep='|', names=u_cols,
- encoding='latin-1')"""
-
-#Reading ratings file:
-r_cols = ['user_id', 'movie_id', 'rating', 'unix_timestamp']
-ratings = pd.read_csv("/home/ink/Documents/2016_2017/Analyse de Donnée/Projet_Analyse/ratings.csv", sep='\t', names=r_cols,
+start = time.clock()
+ratings = pd.read_csv("/home/ink/Documents/2016_2017/Analyse de Donnée/Projet_Analyse/ratings.csv", sep = ",",
 encoding='latin-1')
-print ratings.shape
-print ratings.head(50)
+ratings = ratings.sort_values('movieId').reset_index()
+ratings['movies_matrix'] = 0
+df = pd.DataFrame(ratings)
+df_movie = df.movieId
+df_users = df.userId
+df_rating = df.rating
 
-#Reading items file:
-"""i_cols = ['movie id', 'movie title' ,'release date','video release date', 'IMDb URL', 'unknown', 'Action', 'Adventure',
- 'Animation', 'Children\'s', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy',
- 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western']
-items = pd.read_csv('/home/ink/Documents/2016_2017/Analyse de Donnée/Projet_Analyse/', sep='|', names=i_cols,
- encoding='latin-1')"""
+matrix_movies={}
+for k, v in enumerate(df_movie.unique()):
+    matrix_movies[k] = v
+movies_matrix = {v: k for k, v in matrix_movies.iteritems()}
+
+
+for i in range(len(ratings)):
+        ratings["movies_matrix"].ix[i] = movies_matrix[ratings["movieId"].ix[i]]
+print ratings.head()
+ratings.to_csv("NouveauRatings.csv")
+
+end = time.clock()
+print end-start
